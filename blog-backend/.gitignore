@@ -1,0 +1,8 @@
+target/
+*.class
+*.jar
+*.log
+embedding-store.db
+.idea/
+*.iml
+.env

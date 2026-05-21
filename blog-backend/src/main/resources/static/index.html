@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Java后端项目</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 40px; border-radius: 16px; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 16px; }
+        .header-stats { display: flex; gap: 24px; margin-top: 20px; }
+        .stat-item { background: rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 10px; backdrop-filter: blur(10px); }
+        .stat-item .label { font-size: 12px; opacity: 0.8; }
+        .stat-item .value { font-size: 20px; font-weight: 600; }
+        .user-info { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 12px; }
+        .user-info .avatar { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .user-info .name { font-weight: 500; }
+        .user-info .logout { cursor: pointer; opacity: 0.8; font-size: 14px; }
+        .user-info .logout:hover { opacity: 1; }
+
+        /* Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+
+        /* Card */
+        .card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .card-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .card-title i { color: var(--primary); }
+        .badge { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+
+        /* Form */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-light); font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; transition: all 0.2s; background: var(--bg);
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: var(--bg); }
+        .btn-group { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .tab { padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-size: 14px; color: var(--text-light); border-radius: 8px 8px 0 0; transition: all 0.2s; }
+        .tab.active { background: var(--primary); color: white; }
+        .tab:hover:not(.active) { background: var(--bg); }
+
+        /* Result */
+        .result { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-top: 16px; max-height: 200px; overflow-y: auto; font-family: 'Monaco', 'Menlo', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; }
+        .result.success { border-color: var(--success); background: #ecfdf5; }
+        .result.error { border-color: var(--danger); background: #fef2f2; }
+
+        /* Article List */
+        .article-list { max-height: 300px; overflow-y: auto; }
+        .article-item { padding: 16px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+        .article-item:hover { border-color: var(--primary); background: #f8f7ff; }
+        .article-item h4 { margin-bottom: 8px; color: var(--text); font-size: 16px; }
+        .article-item p { font-size: 13px; color: var(--text-light); margin-bottom: 8px; }
+        .article-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-light); }
+        .article-meta span { display: flex; align-items: center; gap: 4px; }
+
+        /* Chat */
+        .chat-container { display: flex; flex-direction: column; height: 400px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; background: var(--bg); border-radius: 10px; margin-bottom: 12px; }
+        .chat-msg { margin-bottom: 12px; padding: 12px 16px; border-radius: 12px; max-width: 80%; }
+        .chat-msg.user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+        .chat-msg.ai { background: white; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .chat-input { display: flex; gap: 8px; }
+        .chat-input input { flex: 1; }
+
+        /* Full Width */
+        .full-width { grid-column: 1 / -1; }
+
+        /* Empty State */
+        .empty { text-align: center; padding: 40px 20px; color: var(--text-light); }
+        .empty i { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Blog Backend</h1>
+            <p>Spring Boot + MyBatis-Plus + JWT | Java后端实习项目</p>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="label">技术栈</div>
+                    <div class="value">7+</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">功能模块</div>
+                    <div class="value">12</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">API接口</div>
+                    <div class="value">25+</div>
+                </div>
+            </div>
+            <div class="user-info" id="userArea" style="display:none">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <span class="name" id="userName"></span>
+                <span class="logout" onclick="logout()">退出</span>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Auth -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-user-circle"></i> 用户中心</span>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this,'auth-login')">登录</button>
+                    <button class="tab" onclick="switchTab(this,'auth-register')">注册</button>
+                    <button class="tab" onclick="switchTab(this,'auth-profile')">个人信息</button>
+                </div>
+                <div id="auth-login" class="tab-panel">
+                    <div class="form-group"><label>用户名</label><input type="text" id="loginUser" value=""></div>
+                    <div class="form-group"><label>密码</label><input type="password" id="loginPass" value=""></div>
+                    <button class="btn btn-primary" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> 登录</button>
+                </div>
+                <div id="auth-register" class="tab-panel" style="display:none">
+                    <div class="form-group"><label>用户名</label><input type="text" id="regUser" placeholder="3-20位字符"></div>
+                    <div class="form-group"><label>密码</label><input type="password" id="regPass" placeholder="6-20位字符"></div>
+                    <div class="form-group"><label>昵称</label><input type="text" id="regNick" placeholder="选填"></div>
+                    <button class="btn btn-success" onclick="doRegister()"><i class="fas fa-user-plus"></i> 注册</button>
+                </div>
+                <div id="auth-profile" class="tab-panel" style="display:none">
+                    <div id="profileContent"><div class="empty"><i class="fas fa-user-lock"></i><p>请先登录</p></div></div>
+                </div>
+                <div id="authResult" class="result" style="display:none"></div>
+            </div>
+
+            <!-- Article -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-newspaper"></i> 文章管理</span>
+                    <span class="badge">CRUD</span>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this,'art-list')">文章列表</button>
+                    <button class="tab" onclick="switchTab(this,'art-create')">发布文章</button>
+                </div>
+                <div id="art-list" class="tab-panel">
+                    <div class="article-list" id="articleList"><div class="empty"><i class="fas fa-inbox"></i><p>加载中...</p></div></div>
+                    <button class="btn btn-outline" onclick="loadArticles()" style="margin-top:12px;width:100%"><i class="fas fa-sync"></i> 刷新</button>
+                </div>
+                <div id="art-create" class="tab-panel" style="display:none">
+                    <div class="form-group"><label>标题</label><input type="text" id="artTitle" placeholder="文章标题"></div>
+                    <div class="form-group"><label>内容</label><textarea id="artContent" placeholder="文章内容"></textarea></div>
+                    <div class="form-group"><label>分类</label>
+                        <select id="artCategory"><option value="1">Java</option><option value="2" selected>Spring Boot</option><option value="3">数据库</option><option value="4">前端</option><option value="5">其他</option></select>
+                    </div>
+                    <button class="btn btn-success" onclick="createArticle()"><i class="fas fa-paper-plane"></i> 发布</button>
+                </div>
+                <div id="artResult" class="result" style="display:none"></div>
+            </div>
+
+            <!-- Interact -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-heart"></i> 互动功能</span>
+                    <span class="badge">Redis</span>
+                </div>
+                <div class="form-group"><label>文章ID</label><input type="number" id="interactId" value="1"></div>
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="doLike()"><i class="fas fa-heart"></i> 点赞</button>
+                    <button class="btn btn-success" onclick="doFavorite()"><i class="fas fa-star"></i> 收藏</button>
+                    <button class="btn btn-outline" onclick="doCheck()"><i class="fas fa-info-circle"></i> 详情</button>
+                </div>
+                <div id="interactResult" class="result" style="display:none"></div>
+            </div>
+
+            <!-- Follow -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-users"></i> 社交功能</span>
+                </div>
+                <div class="form-group"><label>用户ID</label><input type="number" id="followId" value="1"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="doFollow()"><i class="fas fa-user-plus"></i> 关注</button>
+                    <button class="btn btn-outline" onclick="doFollowStats()"><i class="fas fa-chart-bar"></i> 统计</button>
+                </div>
+                <div id="followResult" class="result" style="display:none"></div>
+            </div>
+
+            <!-- Comment -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-comments"></i> 评论系统</span>
+                </div>
+                <div class="form-group"><label>文章ID</label><input type="number" id="commentArtId" value="1"></div>
+                <div class="form-group"><label>评论内容</label><textarea id="commentContent" placeholder="写下你的评论..." style="min-height:60px"></textarea></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="doComment()"><i class="fas fa-paper-plane"></i> 发表</button>
+                    <button class="btn btn-outline" onclick="loadComments()"><i class="fas fa-list"></i> 查看</button>
+                </div>
+                <div id="commentResult" class="result" style="display:none"></div>
+            </div>
+
+            <!-- Search -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-search"></i> 搜索功能</span>
+                </div>
+                <div class="form-group"><label>关键词</label><input type="text" id="searchKey" placeholder="搜索文章标题/内容"></div>
+                <div class="form-group"><label>分类</label>
+                    <select id="searchCat"><option value="">全部</option><option value="1">Java</option><option value="2">Spring Boot</option><option value="3">数据库</option></select>
+                </div>
+                <button class="btn btn-primary" onclick="doSearch()"><i class="fas fa-search"></i> 搜索</button>
+                <div id="searchResult" class="result" style="display:none"></div>
+            </div>
+
+            <!-- Hot -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-fire"></i> 热门排行</span>
+                    <span class="badge">Sorted Set</span>
+                </div>
+                <div id="hotList"><div class="empty"><i class="fas fa-fire-alt"></i><p>暂无热门文章</p></div></div>
+                <button class="btn btn-outline" onclick="loadHot()" style="margin-top:12px;width:100%"><i class="fas fa-sync"></i> 刷新</button>
+            </div>
+
+            <!-- History -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-history"></i> 浏览历史</span>
+                </div>
+                <div id="historyList"><div class="empty"><i class="fas fa-clock"></i><p>请先登录</p></div></div>
+                <button class="btn btn-outline" onclick="loadHistory()" style="margin-top:12px;width:100%"><i class="fas fa-sync"></i> 刷新</button>
+            </div>
+
+            <!-- AI -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-robot"></i> AI智能助理</span>
+                    <span class="badge">SSE流式对话</span>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatBox">
+                        <div class="chat-msg ai">你好！我是AI技术助理，可以帮你解答Java、Spring Boot等后端技术问题。</div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="输入问题..." onkeypress="if(event.key==='Enter')sendChat()">
+                        <button class="btn btn-primary" onclick="sendChat()"><i class="fas fa-paper-plane"></i> 发送</button>
+                        <button class="btn btn-outline" onclick="clearChat()"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('blog_token');
+        let sessionId = 'sess-' + Date.now();
+
+        // Init
+        window.onload = () => { if (token) loadProfile(); loadArticles(); };
+
+        // API
+        async function api(url, opts = {}) {
+            const h = { 'Content-Type': 'application/json' };
+            if (token) h['Authorization'] = 'Bearer ' + token;
+            const r = await fetch(url, { ...opts, headers: { ...h, ...opts.headers } });
+            return r.json();
+        }
+
+        // Tab
+        function switchTab(el, id) {
+            el.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            el.closest('.card').querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        // Result
+        function showResult(id, data, err = false) {
+            const el = document.getElementById(id);
+            el.style.display = 'block';
+            el.className = 'result ' + (err ? 'error' : 'success');
+            el.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+
+        // Auth
+        async function doRegister() {
+            const d = await api('/api/user/register', { method: 'POST', body: JSON.stringify({ username: document.getElementById('regUser').value, password: document.getElementById('regPass').value, nickname: document.getElementById('regNick').value }) });
+            showResult('authResult', d.code === 200 ? '注册成功！' : d, d.code !== 200);
+        }
+        async function doLogin() {
+            const d = await api('/api/user/login', { method: 'POST', body: JSON.stringify({ username: document.getElementById('loginUser').value, password: document.getElementById('loginPass').value }) });
+            if (d.code === 200 && d.data?.token) { token = d.data.token; localStorage.setItem('blog_token', token); showResult('authResult', '登录成功！'); loadProfile(); } else { showResult('authResult', d, true); }
+        }
+        async function loadProfile() {
+            const d = await api('/api/user/info');
+            if (d.code === 200) {
+                const u = d.data;
+                document.getElementById('userArea').style.display = 'flex';
+                document.getElementById('userName').textContent = u.nickname || u.username;
+                document.getElementById('profileContent').innerHTML = `
+                    <p><b>用户名:</b> ${u.username}</p><p><b>昵称:</b> ${u.nickname||'-'}</p><p><b>邮箱:</b> ${u.email||'-'}</p>
+                    <p><b>文章:</b> ${u.articleCount||0} | <b>关注:</b> ${u.followingCount||0} | <b>粉丝:</b> ${u.followerCount||0}</p>`;
+            }
+        }
+        function logout() { token = null; localStorage.removeItem('blog_token'); document.getElementById('userArea').style.display = 'none'; document.getElementById('profileContent').innerHTML = '<div class="empty"><i class="fas fa-user-lock"></i><p>请先登录</p></div>'; }
+
+        // Article
+        async function loadArticles() {
+            const d = await api('/api/article/list?pageNum=1&pageSize=10');
+            if (d.code === 200) {
+                const list = d.data.records;
+                document.getElementById('articleList').innerHTML = list.length ? list.map(a => `
+                    <div class="article-item" onclick="viewArt(${a.id})">
+                        <h4>${a.title}</h4>
+                        <p>${a.summary||'暂无摘要'}</p>
+                        <div class="article-meta"><span><i class="fas fa-eye"></i> ${a.viewCount||0}</span><span><i class="fas fa-heart"></i> ${a.likeCount||0}</span><span><i class="fas fa-comment"></i> ${a.commentCount||0}</span></div>
+                    </div>`).join('') : '<div class="empty"><i class="fas fa-inbox"></i><p>暂无文章</p></div>';
+            }
+        }
+        async function viewArt(id) {
+            const d = await api(`/api/article/detail/${id}`);
+            showResult('artResult', d, d.code !== 200);
+            document.getElementById('interactId').value = id;
+            document.getElementById('commentArtId').value = id;
+        }
+        async function createArticle() {
+            if (!token) { showResult('artResult', '请先登录', true); return; }
+            const d = await api('/api/article/create', { method: 'POST', body: JSON.stringify({ title: document.getElementById('artTitle').value, content: document.getElementById('artContent').value, categoryId: document.getElementById('artCategory').value }) });
+            showResult('artResult', d, d.code !== 200);
+            if (d.code === 200) loadArticles();
+        }
+
+        // Interact
+        async function doLike() { if (!token) { showResult('interactResult', '请先登录', true); return; } showResult('interactResult', await api(`/api/article/like/${document.getElementById('interactId').value}`, { method: 'POST' })); }
+        async function doFavorite() { if (!token) { showResult('interactResult', '请先登录', true); return; } showResult('interactResult', await api(`/api/favorite/toggle/${document.getElementById('interactId').value}`, { method: 'POST' })); }
+        async function doCheck() { const d = await api(`/api/article/detail/${document.getElementById('interactId').value}`); if (d.code === 200) showResult('interactResult', { title: d.data.title, views: d.data.viewCount, likes: d.data.likeCount, comments: d.data.commentCount, liked: d.data.isLiked, favorited: d.data.isFavorited }); else showResult('interactResult', d, true); }
+
+        // Follow
+        async function doFollow() { if (!token) { showResult('followResult', '请先登录', true); return; } showResult('followResult', await api(`/api/follow/toggle/${document.getElementById('followId').value}`, { method: 'POST' })); }
+        async function doFollowStats() { showResult('followResult', await api(`/api/follow/stats/${document.getElementById('followId').value}`)); }
+
+        // Comment
+        async function doComment() { if (!token) { showResult('commentResult', '请先登录', true); return; } showResult('commentResult', await api('/api/comment/add', { method: 'POST', body: JSON.stringify({ articleId: document.getElementById('commentArtId').value, content: document.getElementById('commentContent').value }) })); }
+        async function loadComments() { showResult('commentResult', await api(`/api/comment/list/${document.getElementById('commentArtId').value}`)); }
+
+        // Search
+        async function doSearch() { showResult('searchResult', await api('/api/search/articles', { method: 'POST', body: JSON.stringify({ keyword: document.getElementById('searchKey').value, categoryId: document.getElementById('searchCat').value || null, pageNum: 1, pageSize: 10 }) })); }
+
+        // Hot
+        async function loadHot() {
+            const d = await api('/api/hot/list?limit=5');
+            if (d.code === 200 && d.data?.length) {
+                document.getElementById('hotList').innerHTML = d.data.map((a, i) => `<div class="article-item" onclick="viewArt(${a.id})"><h4>${i+1}. ${a.title}</h4><div class="article-meta"><span><i class="fas fa-eye"></i> ${a.viewCount||0}</span></div></div>`).join('');
+            }
+        }
+
+        // History
+        async function loadHistory() { if (!token) { document.getElementById('historyList').innerHTML = '<div class="empty"><i class="fas fa-lock"></i><p>请先登录</p></div>'; return; } const d = await api('/api/history/list?pageNum=1&pageSize=5'); if (d.code === 200 && d.data?.records?.length) { document.getElementById('historyList').innerHTML = d.data.records.map(a => `<div class="article-item" onclick="viewArt(${a.id})"><h4>${a.title}</h4></div>`).join(''); } }
+
+        // Chat
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            addMsg(msg, 'user');
+            input.value = '';
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'chat-msg ai';
+            aiDiv.textContent = '思考中...';
+            document.getElementById('chatBox').appendChild(aiDiv);
+            try {
+                const res = await fetch('/api/ai/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, sessionId }) });
+                const reader = res.body.getReader();
+                const dec = new TextDecoder();
+                let full = '';
+                aiDiv.textContent = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    for (const line of dec.decode(value).split('\n')) {
+                        if (line.startsWith('data:')) { try { const d = JSON.parse(line.substring(5).trim()); if (d.content) { full += d.content; aiDiv.textContent = full; } if (d.sessionId) sessionId = d.sessionId; if (d.error) { aiDiv.textContent = '错误: ' + d.error; aiDiv.style.color = '#ef4444'; } } catch(e){} }
+                    }
+                    document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+                }
+                if (!full) aiDiv.textContent = 'AI服务未配置，请在 application.yml 中设置 ai.api-key';
+            } catch (e) { aiDiv.textContent = '连接失败: ' + e.message; aiDiv.style.color = '#ef4444'; }
+            document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+        }
+        function addMsg(text, type) { const d = document.createElement('div'); d.className = 'chat-msg ' + type; d.textContent = text; document.getElementById('chatBox').appendChild(d); document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight; }
+        function clearChat() { document.getElementById('chatBox').innerHTML = '<div class="chat-msg ai">对话已清空，有什么可以帮你的？</div>'; sessionId = 'sess-' + Date.now(); }
+    </script>
+</body>
+</html>

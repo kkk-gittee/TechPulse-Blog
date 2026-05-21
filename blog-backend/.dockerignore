@@ -1,0 +1,7 @@
+target/
+.idea/
+*.iml
+*.log
+app.log
+embedding-store.db
+.env
