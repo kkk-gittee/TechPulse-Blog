@@ -127,4 +127,11 @@ public class FavoriteServiceImpl implements FavoriteService {
         }
         return voList;
     }
+
+    @Override
+    public Long countByArticle(Long articleId) {
+        LambdaQueryWrapper<Favorite> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Favorite::getArticleId, articleId);
+        return favoriteMapper.selectCount(wrapper);
+    }
 }

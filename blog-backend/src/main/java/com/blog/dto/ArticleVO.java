@@ -16,6 +16,7 @@ public class ArticleVO {
     private Integer viewCount;
     private Integer likeCount;
     private Integer commentCount;
+    private Integer favoriteCount;
     private Integer status;
     private Long categoryId;
     private String categoryName;

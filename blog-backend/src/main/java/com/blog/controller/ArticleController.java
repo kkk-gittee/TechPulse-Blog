@@ -52,6 +52,7 @@ public class ArticleController {
             // 记录浏览历史
             browseHistoryService.addHistory(userId, id);
         }
+        articleVO.setFavoriteCount(favoriteService.countByArticle(id).intValue());
         // 记录热门文章
         hotArticleService.recordView(id);
         return Result.success(articleVO);

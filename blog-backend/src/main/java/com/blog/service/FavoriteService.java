@@ -12,4 +12,6 @@ public interface FavoriteService {
     List<Long> getUserFavoriteArticleIds(Long userId);
 
     List<ArticleVO> getUserFavoriteArticles(Long userId);
+
+    Long countByArticle(Long articleId);
 }
